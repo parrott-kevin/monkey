@@ -1,0 +1,6 @@
+{
+  "deno.enable": true,
+  "deno.config": "./deno.jsonc",
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.codeLens": false
+}
