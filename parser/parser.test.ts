@@ -1,4 +1,4 @@
-import { assertEquals, assertNotEquals } from '../deps.ts';
+import { assertEquals, assertNotEquals, fail } from '../deps.ts';
 import { LetStatement, Statement } from '../ast/ast.ts';
 import { Lexer } from '../lexer/lexer.ts';
 import { Parser } from './parser.ts';
@@ -20,6 +20,19 @@ function testLetStatement(s: Statement, expectedIdentifier: string): boolean {
   return true;
 }
 
+function checkParserErrors(p: Parser) {
+  const errors = p.errors;
+  if (errors.length === 0) {
+    return;
+  }
+
+  console.error(`parser has ${errors.length} errors`);
+  for (const message of errors) {
+    console.error(`parser error: ${message}`);
+  }
+  fail();
+}
+
 Deno.test('let statements', () => {
   const input = `
     let x = 5;
@@ -30,6 +43,9 @@ Deno.test('let statements', () => {
   const p = new Parser(l);
 
   const program = p.parseProgram();
+
+  checkParserErrors(p);
+
   assertNotEquals(program, null);
   assertEquals(program.statements.length, 3);
 
