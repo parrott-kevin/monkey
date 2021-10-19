@@ -1,6 +1,6 @@
 const PROMPT = '>>';
 
-import Lexer from '../lexer/lexer.ts';
+import { Lexer } from '../lexer/lexer.ts';
 import { Tokens } from '../token/token.ts';
 
 export const start = async (

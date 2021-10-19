@@ -1,5 +1,5 @@
 import { lookupIdent, Token, Tokens, TokenType } from '../token/token.ts';
-class Lexer {
+export class Lexer {
   input: string;
   position = 0;
   readPosition = 0;
@@ -170,5 +170,3 @@ class Lexer {
     return tok;
   }
 }
-
-export default Lexer;

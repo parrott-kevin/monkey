@@ -1,5 +1,5 @@
 import { assertEquals } from '../deps.ts';
-import Lexer from './lexer.ts';
+import { Lexer } from './lexer.ts';
 import { Tokens, TokenType } from '../token/token.ts';
 
 Deno.test('nextToken', (): void => {
