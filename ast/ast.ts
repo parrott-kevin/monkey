@@ -55,3 +55,17 @@ export class LetStatement implements Statement {
     return this.token.Literal;
   }
 }
+
+export class ReturnStatement implements Statement {
+  token: Token;
+  returnValue?: Expression;
+
+  constructor(i: { token: Token; returnValue?: Expression }) {
+    this.token = i.token;
+  }
+
+  statementNode() {}
+  tokenLiteral(): string {
+    return this.token.Literal;
+  }
+}

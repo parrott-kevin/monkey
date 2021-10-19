@@ -1,8 +1,7 @@
-import { assertEquals, assertNotEquals, fail } from '../deps.ts';
-import { LetStatement, Statement } from '../ast/ast.ts';
+import { assert, assertEquals, assertNotEquals, fail } from '../deps.ts';
+import { LetStatement, ReturnStatement, Statement } from '../ast/ast.ts';
 import { Lexer } from '../lexer/lexer.ts';
 import { Parser } from './parser.ts';
-import { Tokens } from '../token/token.ts';
 
 function testLetStatement(s: Statement, expectedIdentifier: string): boolean {
   assertEquals(s.tokenLiteral(), 'let');
@@ -62,5 +61,25 @@ Deno.test('let statements', () => {
     if (!testLetStatement(stmt, tests[i].expectedIdentifier)) {
       break;
     }
+  }
+});
+
+Deno.test('return statements', () => {
+  const input = `
+    return 5;
+    return 10;
+    return 993322;
+  `;
+  const l = new Lexer(input);
+  const p = new Parser(l);
+
+  const program = p.parseProgram();
+  checkParserErrors(p);
+
+  assertEquals(program.statements.length, 3);
+
+  for (const stmt of program.statements) {
+    assert(stmt instanceof ReturnStatement);
+    assertEquals(stmt.tokenLiteral(), 'return');
   }
 });
