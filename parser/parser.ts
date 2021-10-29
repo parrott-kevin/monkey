@@ -1,6 +1,8 @@
 import { Lexer } from '../lexer/lexer.ts';
 import { Token, Tokens, TokenType } from '../token/token.ts';
 import {
+  Expression,
+  ExpressionStatement,
   Identifier,
   LetStatement,
   Program,
@@ -8,16 +10,35 @@ import {
   Statement,
 } from '../ast/ast.ts';
 
+type prefixParseFn = () => Expression;
+type infixParseFn = (exp: Expression) => Expression;
+
+enum Precedences {
+  _,
+  LOWEST,
+  EQUALS, // ==
+  LESSGREATER, // > or <
+  SUM, // +
+  PRODUCT, // *
+  PREFIX, // -X or !X
+  CALL, // myFunction(X)
+}
+
 export class Parser {
   l: Lexer;
+  errors: string[] = [];
+
   curToken: Token;
   peekToken: Token;
-  errors: string[] = [];
+
+  prefixParseFns: { [key: TokenType]: prefixParseFn } = {};
+  infixParseFns: { [key: TokenType]: infixParseFn } = {};
 
   constructor(l: Lexer) {
     this.l = l;
     this.curToken = this.l.nextToken();
     this.peekToken = this.l.nextToken();
+    this.registerPrefix(Tokens.IDENT, this.parseIdentifier);
   }
 
   nextToken() {
@@ -49,6 +70,14 @@ export class Parser {
     this.errors.push(message);
   }
 
+  parseIdentifier(): Expression {
+    const ident = new Identifier({
+      token: this.curToken,
+      value: this.curToken.Literal,
+    });
+    return ident;
+  }
+
   parseLetStatement(): Statement | null {
     const stmt = new LetStatement({ token: this.curToken });
     if (!this.expectPeek(Tokens.IDENT)) {
@@ -72,9 +101,26 @@ export class Parser {
   }
 
   parseReturnStatement(): Statement {
-    const stmt = new ReturnStatement({ token: this.curToken });
+    const stmt = new ReturnStatement(this.curToken);
     this.nextToken();
     while (!this.curTokenIs(Tokens.SEMICOLON)) {
+      this.nextToken();
+    }
+    return stmt;
+  }
+
+  parseExpression(precedence: Precedences): Expression {
+    const prefix = this.prefixParseFns[this.curToken.Type];
+    const leftExp = prefix();
+    return leftExp;
+  }
+
+  parseExpressionStatement(): ExpressionStatement {
+    const stmt = new ExpressionStatement(
+      this.curToken,
+      this.parseExpression(Precedences.LOWEST),
+    );
+    if (this.peekTokenIs(Tokens.SEMICOLON)) {
       this.nextToken();
     }
     return stmt;
@@ -87,7 +133,7 @@ export class Parser {
       case Tokens.RETURN:
         return this.parseReturnStatement();
       default:
-        return null;
+        return this.parseExpressionStatement();
     }
   }
 
@@ -101,5 +147,13 @@ export class Parser {
       this.nextToken();
     }
     return program;
+  }
+
+  registerPrefix(tokenType: TokenType, fn: prefixParseFn) {
+    this.prefixParseFns[tokenType] = fn.bind(this);
+  }
+
+  registerInfix(tokenType: TokenType, fn: infixParseFn) {
+    this.infixParseFns[tokenType] = fn.bind(this);
   }
 }
