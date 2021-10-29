@@ -7,17 +7,17 @@ Deno.test('string', () => {
 
   const token = { Type: Tokens.LET, Literal: 'let' };
 
-  const name = new Identifier({
-    token: { Type: Tokens.IDENT, Literal: 'myVar' },
-    value: 'myVar',
-  });
+  const name = new Identifier(
+    { Type: Tokens.IDENT, Literal: 'myVar' },
+    'myVar',
+  );
 
-  const value = new Identifier({
-    token: { Type: Tokens.IDENT, Literal: 'anotherVar' },
-    value: 'anotherVar',
-  });
+  const value = new Identifier(
+    { Type: Tokens.IDENT, Literal: 'anotherVar' },
+    'anotherVar',
+  );
 
-  program.statements.push(new LetStatement({ token, name, value }));
+  program.statements.push(new LetStatement(token, name, value));
 
   assertEquals(program.string(), 'let myVar = anotherVar;');
 });

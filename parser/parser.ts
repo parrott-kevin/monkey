@@ -71,23 +71,23 @@ export class Parser {
   }
 
   parseIdentifier(): Expression {
-    const ident = new Identifier({
-      token: this.curToken,
-      value: this.curToken.Literal,
-    });
+    const ident = new Identifier(
+      this.curToken,
+      this.curToken.Literal,
+    );
     return ident;
   }
 
   parseLetStatement(): Statement | null {
-    const stmt = new LetStatement({ token: this.curToken });
+    const stmt = new LetStatement(this.curToken);
     if (!this.expectPeek(Tokens.IDENT)) {
       return null;
     }
 
-    stmt.name = new Identifier({
-      token: this.curToken,
-      value: this.curToken.Literal,
-    });
+    stmt.name = new Identifier(
+      this.curToken,
+      this.curToken.Literal,
+    );
 
     if (!this.expectPeek(Tokens.ASSIGN)) {
       return null;

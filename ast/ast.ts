@@ -34,13 +34,10 @@ export class Program implements Node {
 }
 
 export class Identifier implements Expression {
-  token: Token;
-  value: string;
-
-  constructor(i: { token: Token; value: string }) {
-    this.token = i.token;
-    this.value = i.value;
-  }
+  constructor(
+    public token: Token,
+    public value: string,
+  ) {}
 
   expressionNode() {}
 
@@ -54,15 +51,11 @@ export class Identifier implements Expression {
 }
 
 export class LetStatement implements Statement {
-  token: Token;
-  name?: Identifier;
-  value?: Expression;
-
-  constructor(i: { token: Token; name?: Identifier; value?: Expression }) {
-    this.token = i.token;
-    this.name = i.name;
-    this.value = i.value;
-  }
+  constructor(
+    public token: Token,
+    public name?: Identifier,
+    public value?: Expression,
+  ) {}
 
   statementNode() {}
 
@@ -71,7 +64,7 @@ export class LetStatement implements Statement {
   }
 
   string() {
-    return `${this.tokenLiteral()} ${this.name?.string()} = ${
+    return `${this.tokenLiteral()} ${this.name?.string() ?? ''} = ${
       this.value?.string() ?? ''
     };`;
   }
