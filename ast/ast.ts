@@ -90,7 +90,7 @@ export class ReturnStatement implements Statement {
 export class ExpressionStatement implements Statement {
   constructor(
     public token: Token,
-    public expression: Expression,
+    public expression: Expression | null,
   ) {}
 
   statementNode() {}
@@ -100,6 +100,62 @@ export class ExpressionStatement implements Statement {
   }
 
   string() {
-    return this.expression.string();
+    return this.expression?.string() ?? '';
+  }
+}
+
+export class IntegerLiteral implements Expression {
+  constructor(
+    public token: Token,
+    public value: number,
+  ) {}
+
+  expressionNode() {}
+
+  tokenLiteral() {
+    return this.token.Literal;
+  }
+
+  string() {
+    return this.token.Literal;
+  }
+}
+
+export class PrefixExpression implements Expression {
+  constructor(
+    public token: Token,
+    public operator: string,
+    public right?: Expression | null,
+  ) {}
+
+  expressionNode() {}
+
+  tokenLiteral() {
+    return this.token.Literal;
+  }
+
+  string() {
+    return `(${this.operator}${this.right?.string() ?? ''})`;
+  }
+}
+
+export class InfixExpression implements Expression {
+  constructor(
+    public token: Token,
+    public left: Expression,
+    public operator: string,
+    public right?: Expression | null,
+  ) {}
+
+  expressionNode() {}
+
+  tokenLiteral() {
+    return this.token.Literal;
+  }
+
+  string() {
+    return `(${this.left.string()} ${this.operator} ${
+      this.right?.string() ?? ''
+    })`;
   }
 }
