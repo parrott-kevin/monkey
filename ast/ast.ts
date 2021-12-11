@@ -159,3 +159,20 @@ export class InfixExpression implements Expression {
     })`;
   }
 }
+
+export class Boolean implements Expression {
+  constructor(
+    public token: Token,
+    public value: boolean,
+  ) {}
+
+  expressionNode() {}
+
+  tokenLiteral() {
+    return this.token.Literal;
+  }
+
+  string() {
+    return this.token.Literal;
+  }
+}

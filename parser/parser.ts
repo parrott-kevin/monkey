@@ -1,6 +1,7 @@
 import { Lexer } from '../lexer/lexer.ts';
 import { Token, Tokens, TokenType } from '../token/token.ts';
 import {
+  Boolean,
   Expression,
   ExpressionStatement,
   Identifier,
@@ -58,6 +59,8 @@ export class Parser {
 
     this.registerPrefix(Tokens.BANG, this.parsePrefixExpression);
     this.registerPrefix(Tokens.MINUS, this.parsePrefixExpression);
+    this.registerPrefix(Tokens.TRUE, this.parseBoolean);
+    this.registerPrefix(Tokens.FALSE, this.parseBoolean);
 
     this.registerInfix(Tokens.PLUS, this.parseInfixExpression);
     this.registerInfix(Tokens.MINUS, this.parseInfixExpression);
@@ -150,6 +153,10 @@ export class Parser {
   parseIntegerLiteral(): Expression {
     const value = parseInt(this.curToken.Literal, 10);
     return new IntegerLiteral(this.curToken, value);
+  }
+
+  parseBoolean(): Expression {
+    return new Boolean(this.curToken, this.curTokenIs(Tokens.TRUE));
   }
 
   parseExpression(precedence: Precedences): Expression | null {

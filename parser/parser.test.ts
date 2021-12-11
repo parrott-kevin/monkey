@@ -13,7 +13,7 @@ import {
 import { Lexer } from '../lexer/lexer.ts';
 import { Parser } from './parser.ts';
 
-function checkParserErrors(p: Parser) {
+function checkParserErrors(p: Parser): void {
   const errors = p.errors;
   if (errors.length === 0) {
     return;
@@ -38,6 +38,64 @@ function testLetStatement(s: Statement, expectedIdentifier: string): boolean {
     s.name?.tokenLiteral(),
     expectedIdentifier,
   );
+
+  return true;
+}
+
+function testIntegerLiteral(
+  il: Expression | null | undefined,
+  value: number,
+): boolean {
+  assert(il instanceof IntegerLiteral);
+  assertEquals(il.value, value);
+  assertEquals(il.tokenLiteral(), `${value}`);
+
+  return true;
+}
+
+function testIdentifier(exp: Expression, value: string): boolean {
+  assert(exp instanceof Identifier);
+  const ident = exp;
+  assertEquals(ident.value, value);
+  assertEquals(ident.tokenLiteral(), value);
+  return true;
+}
+
+function testLiteralExpression(
+  exp: Expression,
+  value: number | string,
+): boolean {
+  switch (typeof value) {
+    case 'number':
+      return testIntegerLiteral(exp, value);
+    case 'string':
+      return testIdentifier(exp, value);
+    default:
+      console.log(`typeof exp not handled. got=${exp}`);
+      return false;
+  }
+}
+
+function testInfixExpression(
+  exp: Expression,
+  left: any,
+  operator: string,
+  right: any,
+): boolean {
+  assert(exp instanceof InfixExpression);
+
+  if (!testLiteralExpression(exp.left, left)) {
+    return false;
+  }
+
+  if (exp.operator !== operator) {
+    console.log(`exp.operator is not ${operator}. got=${exp.operator}`);
+    return false;
+  }
+
+  if (exp.right && !testLiteralExpression(exp.right, right)) {
+    return false;
+  }
 
   return true;
 }
@@ -129,14 +187,6 @@ Deno.test('integer literal expression', () => {
   assertEquals(literal.tokenLiteral(), '5');
 });
 
-function testIntegerLiteral(il: Expression | null | undefined, value: number) {
-  assert(il instanceof IntegerLiteral);
-  assertEquals(il.value, value);
-  assertEquals(il.tokenLiteral(), `${value}`);
-
-  return true;
-}
-
 Deno.test('parsing prefix expressions', () => {
   const prefixTests: {
     input: string;
@@ -199,8 +249,7 @@ Deno.test('parsing infix expression', () => {
     assert(stmt instanceof ExpressionStatement);
     const exp = stmt.expression;
     assert(exp instanceof InfixExpression);
-    assert(testIntegerLiteral(exp.left, tt.leftValue));
-    assert(testIntegerLiteral(exp.right, tt.rightValue));
+    testInfixExpression(exp, tt.leftValue, tt.operator, tt.rightValue);
   }
 });
 
